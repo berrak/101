@@ -107,17 +107,19 @@ We will ignore that for now. Next step is to debanize in a chrooted environment.
 DIST=stretch ARCH=amd64 git-pbuilder create
 sudo ln -s /var/cache/pbuilder/base-stretch-amd64.cow base.cow
 ```
-Remove the the new files that above runs have created. Add the debian files to git:
+Remove the the new files in **101** and in **debian** that above runs have created.
+
+Add the debian files to git:
 ```bash
 git add .
 git com -m 'Initial packaging'
 ```
 Before we can build in the chroot we have to update the **rules**.
 The binaries should be end up in /opt/ZUL/bin after our enterprise name **ZUL**:
+
 ```bash
 #!/usr/bin/make -f
 
-CURDIR := $(shell pwd)
 TMP  = $(CURDIR)/debian/$(PACKAGE)
 
 export DH_GOPKG := github.com/berrak/101
@@ -132,12 +134,12 @@ override_dh_auto_install:
         mkdir -p $(TMP)/opt/ZUL/bin
         cp 101 $(TMP)/opt/ZUL/bin        
 ```
-Add changes to git. Since we want to have the binary end up in new directory
-we have to add new file *101.install* in the debian directory:
+Add changes to git. Since we want to have the binary to end up in a new directory
+we have to add a new file *101.install* in the debian directory:
 ```bash
 /opt/ZUL/bin
 ```
-Now we can debanize 101 application in the chrooted stretch environment:
+Now we can debanize the 101 application in the chrooted stretch environment:
 ```bash
 gbp buildpackage --git-pbuilder --git-compression=xz
 ```
@@ -166,8 +168,8 @@ Run application:
 /opt/ZUL/bin/101
 101 olleH
 ```
-In another chapter in the ZUL enterprise above files will be explained.
-The short git aliases used here is in ~.gitconfig:
+In another chapter in the ZUL enterprise golang journey, above files will be explained.
+The short git aliases used here is in user ~.gitconfig:
 ```bash
 [aliases]
 com = commit
