@@ -16,7 +16,7 @@ dh-make-golang -type program github.com/berrak/101
 Directory and files after above run:
 ```bash
 101
-101_0.0~git20180301.36e0591.orig.tar.xz
+101_0.0~git20180301.3253014.orig.tar.xz
 itp-101.txt
 ```
 Binary application name is not changed by Debian, thus it remains as *101*.
@@ -32,8 +32,8 @@ Switch to pristine-tar branch and confirm have same base name as the original ta
 ```bash
 git sw2 pristine-tar
 ls -l
-101_0.0~git20180301.36e0591.orig.tar.xz.delta
-101_0.0~git20180301.36e0591.orig.tar.xz.id
+101_0.0~git20180301.3253014.orig.tar.xz.delta
+101_0.0~git20180301.3253014.orig.tar.xz.id
 git sw2 master
 ```
 Edit **changelog** in the debian directory.
@@ -99,7 +99,7 @@ dh binary --buildsystem=golang --with=golang
 dpkg-gencontrol: warning: Depends field of package 101: unknown substitution variable ${shlibs:Depends}
    dh_md5sums -O--buildsystem=golang
    dh_builddeb -u-Zxz -O--buildsystem=golang
-dpkg-deb: building package '101' in '../101_0.0~git20180301.36e0591-1_amd64.deb'.
+dpkg-deb: building package '101' in '../101_0.0~git20180301.3253014-1_amd64.deb'.
 ```
 We have our debian package built, albeit with a warning about ${shlibs:Depends} from the control file.
 We will ignore that for now. Next step is to debanize in a chrooted environment. Set it up with:
@@ -113,12 +113,12 @@ git add .
 git com -m 'Initial packaging'
 ```
 Before we can build in the chroot we have to update the **rules**.
-The binaries is below /opt/ZUL after our enterprise name **ZUL**:
+The binaries should be end up in /opt/ZUL/bin after our enterprise name **ZUL**:
 ```bash
 #!/usr/bin/make -f
 
 CURDIR := $(shell pwd)
-TMP  = $(CURDIR)/debian/tmp
+TMP  = $(CURDIR)/debian/$(PACKAGE)
 
 export DH_GOPKG := github.com/berrak/101
 
@@ -132,9 +132,47 @@ override_dh_auto_install:
         mkdir -p $(TMP)/opt/ZUL/bin
         cp 101 $(TMP)/opt/ZUL/bin        
 ```
-Add changes to git.
+Add changes to git. Since we want to have the binary end up in new directory
+we have to add new file *101.install* in the debian directory:
+```bash
+/opt/ZUL/bin
+```
 Now we can debanize 101 application in the chrooted stretch environment:
 ```bash
 gbp buildpackage --git-pbuilder --git-compression=xz
 ```
+A number of new files have been created at parent directory:
+```bash
+101_0.0~git20180301.3253014-1_amd64.build
+101_0.0~git20180301.3253014-1_amd64.buildinfo
+101_0.0~git20180301.3253014-1_amd64.changes
+101_0.0~git20180301.3253014-1_amd64.deb
+101_0.0~git20180301.3253014-1.debian.tar.xz
+101_0.0~git20180301.3253014-1.dsc
+101_0.0~git20180301.3253014.orig.tar.xz
+itp-101.txt
+```
+Install and test the 101 application:
+```bash
+sudo dpkg -i 101_0.0~git20180301.3253014-1_amd64.deb
+Selecting previously unselected package 101.
+(Reading database ... 158206 files and directories currently installed.)
+Preparing to unpack 101_0.0~git20180301.3253014-1_amd64.deb ...
+Unpacking 101 (0.0~git20180301.3253014-1) ...
+Setting up 101 (0.0~git20180301.3253014-1) ...
+```
+Run application:
+```bash
+/opt/ZUL/bin/101
+101 olleH
+```
+In another chapter in the ZUL enterprise above files will be explained.
+The short git aliases used here is in ~.gitconfig:
+```bash
+[aliases]
+com = commit
+sw2 = checkout
+vbr = branch -a
+```
+
 
