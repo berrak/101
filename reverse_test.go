@@ -21,7 +21,7 @@ import (
 func TestReverse(t *testing.T) {
 
 	want := "9876543210"
-	got := reverse("0123456789")
+	got := Reverse("0123456789")
 	if got != want {
 		t.Errorf("Want %s but got %s", want, got)
 	}

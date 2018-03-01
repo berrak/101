@@ -18,6 +18,6 @@ import "fmt"
 
 func main() {
 	s := "Hello 101"
-	revMsg := reverse(s)
+	revMsg := Reverse(s)
 	fmt.Println(revMsg)
 }
